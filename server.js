@@ -18,10 +18,15 @@ mongoose.connect(
     console.error('❌ MongoDB 연결 실패:', err);
 });
 
-// ✅ 미들웨어
-app.use(cors());
+// ✅ CORS 허용 – Netlify 주소만 허용하거나 '*'로 전체 허용 가능
+app.use(cors({
+    origin: 'https://illustrious-zuccutto-cae5d8.netlify.app', // ← 실제 Netlify 배포 주소
+    credentials: true
+}));
+
+// ✅ 기본 미들웨어
 app.use(express.json());
-app.use(express.static(__dirname)); // 정적 파일 제공
+app.use(express.static(__dirname)); // 정적 파일 제공 (필요 시 사용)
 
 // ✅ 예약 스키마
 const reservationSchema = new mongoose.Schema({
@@ -34,7 +39,7 @@ const reservationSchema = new mongoose.Schema({
     time: String,
     mainRequest: String,
     note: String,
-    memberKey: String, // 🔸 회원 확인용 키 추가
+    memberKey: String,
     savedAt: { type: Date, default: Date.now }
 });
 const Reservation = mongoose.model('Reservation', reservationSchema, '시술예약');
@@ -50,7 +55,7 @@ app.post('/api/reservations', async(req, res) => {
     }
 });
 
-// ✅ 예약 전체 조회 (필터링은 클라이언트에서 처리)
+// ✅ 예약 전체 조회
 app.get('/api/reservations', async(req, res) => {
     try {
         const list = await Reservation.find().sort({ savedAt: -1 });
@@ -80,7 +85,6 @@ app.delete('/api/reservations/:id', async(req, res) => {
         res.status(500).json({ error: '삭제 실패', detail: err.message });
     }
 });
-
 
 // ✅ 서버 실행
 app.listen(port, () => {

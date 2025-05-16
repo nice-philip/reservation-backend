@@ -101,6 +101,8 @@
     </table>
 
     <script>
+        const apiBase = 'https://reservation-server-t8d6.onrender.com';
+
         function loadReservations() {
             const key = document.getElementById('memberKey').value.trim();
             if (!key) {
@@ -108,7 +110,7 @@
                 return;
             }
 
-            fetch('/api/reservations')
+            fetch(`${apiBase}/api/reservations`)
                 .then(res => res.json())
                 .then(data => {
                     let filtered = key === 'admin2025' ?
@@ -125,19 +127,19 @@
                     }
 
                     tbody.innerHTML = filtered.map(item => `
-            <tr>
-              <td>${item.category || '-'}</td>
-              <td>${item.name || '-'}</td>
-              <td>${item.age || '-'}</td>
-              <td>${item.gender || '-'}</td>
-              <td>${item.email || '-'}</td>
-              <td>${item.date || '-'}</td>
-              <td>${item.time || '-'}</td>
-              <td>${(item.mainRequest || '-').replace(/\n/g, '<br>')}</td>
-              <td>${(item.note || '-').replace(/\n/g, '<br>')}</td>
-              <td><button onclick="deleteReservation('${item._id}')">삭제</button></td>
-            </tr>
-          `).join('');
+                        <tr>
+                          <td>${item.category || '-'}</td>
+                          <td>${item.name || '-'}</td>
+                          <td>${item.age || '-'}</td>
+                          <td>${item.gender || '-'}</td>
+                          <td>${item.email || '-'}</td>
+                          <td>${item.date || '-'}</td>
+                          <td>${item.time || '-'}</td>
+                          <td>${(item.mainRequest || '-').replace(/\n/g, '<br>')}</td>
+                          <td>${(item.note || '-').replace(/\n/g, '<br>')}</td>
+                          <td><button onclick="deleteReservation('${item._id}')">삭제</button></td>
+                        </tr>
+                    `).join('');
                 })
                 .catch(err => {
                     console.error(err);
@@ -148,7 +150,7 @@
 
         function deleteReservation(id) {
             if (!confirm('정말 삭제하시겠습니까?')) return;
-            fetch(`/api/reservations/${id}`, {
+            fetch(`${apiBase}/api/reservations/${id}`, {
                     method: 'DELETE'
                 })
                 .then(res => res.json())
