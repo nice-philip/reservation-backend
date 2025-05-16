@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시술 예약 내역</title>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: #f9f9f9;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .home-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0077cc;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        input {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            margin: 10px auto;
+            display: block;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #0077cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: block;
+            margin: 10px auto 20px auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        th {
+            background: #0077cc;
+            color: white;
+        }
+        
+        tr:hover {
+            background: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="home-link" onclick="location.reload()">← 홈으로</a>
+    <h1>시술 예약 내역</h1>
+
+    <input type="text" id="memberKey" placeholder="회원번호 또는 키 입력" />
+    <button onclick="loadReservations()">예약 확인</button>
+
+    <table id="reservation-table" style="display:none;">
+        <thead>
+            <tr>
+                <th>카테고리</th>
+                <th>이름</th>
+                <th>나이</th>
+                <th>성별</th>
+                <th>이메일</th>
+                <th>날짜</th>
+                <th>시간</th>
+                <th>요청사항</th>
+                <th>비고</th>
+                <th>삭제</th>
+            </tr>
+        </thead>
+        <tbody id="reservation-body">
+            <tr>
+                <td colspan="10">불러오는 중...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function loadReservations() {
+            const key = document.getElementById('memberKey').value.trim();
+            if (!key) {
+                alert('회원 번호 또는 키를 입력해주세요.');
+                return;
+            }
+
+            fetch('/api/reservations')
+                .then(res => res.json())
+                .then(data => {
+                    let filtered = key === 'admin2025' ?
+                        data :
+                        data.filter(item => item.memberKey === key);
+
+                    const tbody = document.getElementById('reservation-body');
+                    const table = document.getElementById('reservation-table');
+                    table.style.display = 'table';
+
+                    if (filtered.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="10">예약 내역이 없습니다.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = filtered.map(item => `
+            <tr>
+              <td>${item.category || '-'}</td>
+              <td>${item.name || '-'}</td>
+              <td>${item.age || '-'}</td>
+              <td>${item.gender || '-'}</td>
+              <td>${item.email || '-'}</td>
+              <td>${item.date || '-'}</td>
+              <td>${item.time || '-'}</td>
+              <td>${(item.mainRequest || '-').replace(/\n/g, '<br>')}</td>
+              <td>${(item.note || '-').replace(/\n/g, '<br>')}</td>
+              <td><button onclick="deleteReservation('${item._id}')">삭제</button></td>
+            </tr>
+          `).join('');
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('reservation-body').innerHTML =
+                        '<tr><td colspan="10">예약을 불러올 수 없습니다.</td></tr>';
+                });
+        }
+
+        function deleteReservation(id) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            fetch(`/api/reservations/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(res => res.json())
+                .then(() => loadReservations())
+                .catch(err => {
+                    console.error('삭제 실패:', err);
+                    alert('삭제 중 오류가 발생했습니다.');
+                });
+        }
+    </script>
+</body>
+
+</html>

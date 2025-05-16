@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>성형 · 피부 시술 예약</title>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: #f9f9f9;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1,
+        h2 {
+            text-align: center;
+        }
+        
+        .home-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #0077cc;
+            text-decoration: none;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: scale(1.03);
+        }
+        
+        .card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .card p {
+            padding: 10px;
+            font-weight: bold;
+        }
+        
+        label,
+        input,
+        select,
+        textarea {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 15px;
+        }
+        
+        button {
+            padding: 12px;
+            width: 100%;
+            background: #0077cc;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        #form-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+            display: none;
+        }
+        
+        .accordion {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+        
+        .accordion button {
+            background: #eee;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+        
+        .accordion-content {
+            padding: 10px;
+            display: none;
+            background: #fafafa;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .zoomable {
+            max-width: 100%;
+            cursor: zoom-in;
+            transition: transform 0.3s;
+        }
+        
+        .zoomable.zoomed {
+            transform: scale(3);
+            cursor: zoom-out;
+            z-index: 9999;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(3);
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        
+        #procedure-display {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        #procedure-description {
+            flex: 1;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>성형 · 피부 시술 예약</h1>
+    <a href="/" class="home-link">← 홈으로</a>
+
+    <div class="grid" id="category-grid">
+        <div class="card" onclick="loadForm('쁘띠성형')"><img src="1.jpg" />
+            <p>쁘띠성형</p>
+        </div>
+        <div class="card" onclick="loadForm('리프팅')"><img src="2.jpg" />
+            <p>리프팅</p>
+        </div>
+        <div class="card" onclick="loadForm('스킨케어')"><img src="3.jpg" />
+            <p>스킨케어</p>
+        </div>
+        <div class="card" onclick="loadForm('미백관리')"><img src="4.jpg" />
+            <p>미백관리</p>
+        </div>
+        <div class="card" onclick="loadForm('레이저 시술')"><img src="5.jpg" />
+            <p>레이저 시술</p>
+        </div>
+        <div class="card" onclick="loadForm('제모')"><img src="6.jpg" />
+            <p>제모</p>
+        </div>
+        <div class="card" onclick="loadForm('트러블 관리')"><img src="7.jpg" />
+            <p>트러블 관리</p>
+        </div>
+        <div class="card" onclick="loadForm('스킨부스터')"><img src="8.jpg" />
+            <p>스킨부스터</p>
+        </div>
+        <div class="card" onclick="loadForm('체형관리')"><img src="9.jpg" />
+            <p>체형관리</p>
+        </div>
+        <div class="card" onclick="loadForm('상담 예약')"><img src="10.jpg" />
+            <p>상담 예약</p>
+        </div>
+    </div>
+
+    <div id="form-section">
+        <h2 id="form-title">예약</h2>
+        <label>이름</label><input type="text" id="name" />
+        <label>나이</label><input type="number" id="age" />
+        <label>성별</label><input type="text" id="gender" />
+        <label>이메일</label><input type="email" id="email" />
+        <label>날짜</label><input type="date" id="date" />
+        <label>시간</label><input type="time" id="time" />
+        <label>요청사항</label><textarea id="main-request"></textarea>
+        <label>비고</label><textarea id="note"></textarea>
+        <label>회원 확인용 번호 또는 텍스트</label><input type="text" id="memberKey" placeholder="예: 01012345678 또는 사용자ID" />
+        <button onclick="submitForm()">예약 정보 저장</button>
+
+        <div class="accordion">
+            <button onclick="toggleAccordion(this)">🖼️ 시술 이미지 및 설명 보기</button>
+            <div class="accordion-content">
+                <div id="procedure-display">
+                    <img id="procedure-image" class="zoomable" src="" alt="시술 이미지" style="max-width: 300px;" />
+                    <div id="procedure-description">설명 로딩 중...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="paypal-button-container" style="margin-top:20px;"></div>
+    </div>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+    <script>
+        let selectedCategory = '';
+
+        function loadForm(category) {
+            selectedCategory = category;
+            document.getElementById('category-grid').style.display = 'none';
+            document.getElementById('form-title').innerText = `${category} 예약`;
+            document.getElementById('form-section').style.display = 'block';
+
+            const imagePath = `${category}/1.jpg`;
+            const textPath = `${category}/1.txt`;
+
+            document.getElementById('procedure-image').src = imagePath;
+
+            fetch(textPath)
+                .then(res => res.text())
+                .then(text => {
+                    document.getElementById('procedure-description').innerText = text;
+                })
+                .catch(() => {
+                    document.getElementById('procedure-description').innerText = '설명을 불러올 수 없습니다.';
+                });
+
+            document.getElementById('paypal-button-container').innerHTML = '';
+            paypal.Buttons({
+                createOrder: (data, actions) => {
+                    return actions.order.create({
+                        purchase_units: [{
+                            description: `${category} 시술 예약`,
+                            amount: {
+                                value: '20.00'
+                            }
+                        }]
+                    });
+                },
+                onApprove: (data, actions) => {
+                    return actions.order.capture().then(details => {
+                        alert(details.payer.name.given_name + '님, 결제가 완료되었습니다.');
+                        submitForm();
+                    });
+                },
+                onError: (err) => {
+                    console.error('PayPal 오류:', err);
+                    alert('결제 오류가 발생했습니다.');
+                }
+            }).render('#paypal-button-container');
+        }
+
+        function submitForm() {
+            const payload = {
+                category: selectedCategory,
+                name: document.getElementById('name').value,
+                age: parseInt(document.getElementById('age').value),
+                gender: document.getElementById('gender').value,
+                email: document.getElementById('email').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                mainRequest: document.getElementById('main-request').value,
+                note: document.getElementById('note').value,
+                memberKey: document.getElementById('memberKey').value.trim(),
+                savedAt: new Date().toISOString()
+            };
+
+            fetch('/api/reservations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert('예약이 저장되었습니다.');
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('예약 저장 중 오류가 발생했습니다.');
+                });
+        }
+
+        function toggleAccordion(btn) {
+            const content = btn.nextElementSibling;
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('zoomable')) {
+                e.target.classList.toggle('zoomed');
+            }
+        });
+    </script>
+</body>
+
+</html>
